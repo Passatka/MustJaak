@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import Cards
-url = "https://192.168.7.200:8080/video"  # Asenda oma IP-ga
+url = "https://192.168.239.64:8080/video"
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
