@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import Cards
-url = "https://192.168.239.64:8080/video"
+url = "https://192.168.64.153:8080/video"
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
@@ -14,12 +14,12 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 path = os.path.dirname(os.path.abspath(__file__))
 train_ranks = Cards.load_ranks( path + '/Card_Imgs/')
 train_suits = Cards.load_suits( path + '/Card_Imgs/')
+cards = []
 time.sleep(1)
 while True:
     ret, frame = cap.read()  # Loeb kaadri
     if not ret:
         break
-
     t1 = cv2.getTickCount()
     pre_proc = Cards.preprocess_image(frame)
     cnts_sort, cnt_is_card = Cards.find_cards(pre_proc)
@@ -30,9 +30,12 @@ while True:
             if (cnt_is_card[i] == 1):
                 cards.append(Cards.preprocess_card(cnts_sort[i],frame))
                 cards[k].best_rank_match,cards[k].best_suit_match,cards[k].rank_diff,cards[k].suit_diff = Cards.match_card(cards[k],train_ranks,train_suits)
-                corner = cards[k].rank_img
                 frame = Cards.draw_results(frame, cards[k])
-                cv2.imshow("c", corner)
+                # rank = cards[k].rank_img
+                # suit = cards[k].suit_img
+                # if len(rank) > 5 and len(suit) > 5:
+                #     cv2.imshow("r", rank)
+                #     cv2.imshow("s", suit)
                 k = k + 1
     if (len(cards) != 0):
         temp_cnts = []
