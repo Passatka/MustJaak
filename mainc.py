@@ -15,6 +15,9 @@ path = os.path.dirname(os.path.abspath(__file__))
 train_ranks = Cards.load_ranks( path + '/Card_Imgs/')
 train_suits = Cards.load_suits( path + '/Card_Imgs/')
 cards = []
+current_cards = []
+loendur = 0
+new_game_counter = 0
 time.sleep(1)
 while True:
     ret, frame = cap.read()  # Loeb kaadri
@@ -38,8 +41,19 @@ while True:
                 #     cv2.imshow("r", rank)
                 #     cv2.imshow("s", suit)
                 k = k + 1
-        print([(i.best_rank_match, i.side) for i in cards])
-        
+        if loendur % 7 == 0:
+            new_cards = [(i.best_rank_match, i.side) for i in cards]
+        loendur += 1
+        if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
+            current_cards = new_cards
+        if new_cards == []:
+            new_game_counter += 1
+            if new_game_counter == 3:
+                current_cards = []
+                new_game_counter = 0
+                loendur = 0
+        if new_cards != []:
+            new_game_counter = 0
     if (len(cards) != 0):
         temp_cnts = []
         for i in range(len(cards)):
@@ -48,7 +62,8 @@ while True:
     cv2.putText(frame,"FPS: "+str(int(frame_rate_calc)),(10,26),font,0.7,(255,0,255),2,cv2.LINE_AA)
     cv2.imshow("Card Detector",frame)
 
-
+    # print("New: ", new_cards)
+    # print("Current: ",current_cards)
     t2 = cv2.getTickCount()
     time1 = (t2-t1)/freq
     frame_rate_calc = 1/time1
