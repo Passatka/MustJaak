@@ -26,6 +26,7 @@ while True:
     if len(cnts_sort) != 0:
         cards = []
         k = 0
+
         for i in range(len(cnts_sort)):
             if (cnt_is_card[i] == 1):
                 cards.append(Cards.preprocess_card(cnts_sort[i],frame))
@@ -37,6 +38,8 @@ while True:
                 #     cv2.imshow("r", rank)
                 #     cv2.imshow("s", suit)
                 k = k + 1
+        print([(i.best_rank_match, i.side) for i in cards])
+        
     if (len(cards) != 0):
         temp_cnts = []
         for i in range(len(cards)):

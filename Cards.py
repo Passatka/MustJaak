@@ -23,7 +23,7 @@ SUIT_HEIGHT = 100
 RANK_DIFF_MAX = 2000
 SUIT_DIFF_MAX = 700
 
-CARD_MAX_AREA = 120000
+CARD_MAX_AREA = 1200000
 CARD_MIN_AREA = 25000
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -45,6 +45,7 @@ class Query_card:
         self.best_suit_match = "Unknown" # Best matched suit
         self.rank_diff = 0 # Difference between rank image and best matched train rank image
         self.suit_diff = 0 # Difference between suit image and best matched train suit image
+        self.side = "Unknown"
 
 class Train_ranks:
     """Structure to store information about train rank images."""
@@ -181,6 +182,10 @@ def preprocess_card(contour, image):
     # Find center point of card by taking x and y average of the four corners.
     average = np.sum(pts, axis=0)/len(pts)
     cent_x = int(average[0][0])
+    if cent_x < 960:
+        qCard.side = "Dealer"
+    elif cent_x >= 960:
+        qCard.side = "Player"
     cent_y = int(average[0][1])
     qCard.center = [cent_x, cent_y]
 
