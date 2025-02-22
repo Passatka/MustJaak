@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import Cards
-url = "https://192.168.64.153:8080/video"
+url = "https://192.168.64.153:8080/video" #NB! Muutub!
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
