@@ -9,6 +9,7 @@ IM_WIDTH = 1920
 IM_HEIGHT = 1080 
 FRAME_RATE = 2
 frame_rate_calc = 1
+f = open("decision.txt", "w")
 freq = cv2.getTickFrequency()
 font = cv2.FONT_HERSHEY_SIMPLEX
 path = os.path.dirname(os.path.abspath(__file__))
@@ -40,6 +41,41 @@ dealer_aces = 0
 player_aces = 0
 dealer_value = 0
 player_value = 0
+old_dealer_value = 0
+old_player_value = 0
+n1 = 0
+n2 = 0
+new_game = True
+def player_decision(player_value, dealer_value, player_aces):
+    if player_aces > 0:
+        if player_value <= 17:
+            decision = "HIT"    
+        elif player_value == 18:
+            if dealer_value <= 8:
+                decision = "STAND"
+            elif dealer_value >= 9:
+                decision = "HIT"
+        elif player_value >= 19:
+            decision = "STAND"
+        return decision
+    elif player_aces == 0:
+        if player_value <= 11:
+            decision = "HIT"
+        elif player_value == 12:
+            if dealer_value in (2,3,7,8,9,10,11):
+                decision = "HIT"
+            elif dealer_value in (4,5,6):
+                decision = "STAND"
+        elif player_value <= 16:
+            if dealer_value <= 6:
+                decision = "STAND"
+            elif dealer_value >= 7:
+                decision = "HIT"
+        elif player_value >= 17:
+            decision = "STAND"
+        return decision
+    return -1
+
 while True:
     ret, frame = cap.read()  # Loeb kaadri
     if not ret:
@@ -73,6 +109,9 @@ while True:
             if new_game_counter == 3:
                 current_cards = []
                 new_game_counter = 0
+                new_game = True
+                old_dealer_value = 0
+                old_player_value = 0
                 loendur = 0
         if new_cards != []:
             new_game_counter = 0
@@ -107,6 +146,20 @@ while True:
                 player_value -= 10
         print("D",dealer_value)
         print("P",player_value)
+        if dealer_value == old_dealer_value:
+            n1 += 1
+        if player_value == old_player_value:
+            n2 += 1
+        old_dealer_value = dealer_value
+        old_player_value = player_value
+        print(old_dealer_value,old_player_value)
+    if new_game and n1 > 2 and n2 > 2:
+        decision = player_decision(player_value, dealer_value, player_aces)
+        f.write(decision)
+        if decision == "STAND":
+            new_game = False
+        n1 = 0
+        n2 = 0
     if (len(cards) != 0):
         temp_cnts = []
         for i in range(len(cards)):
