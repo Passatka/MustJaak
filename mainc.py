@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import Cards
-url = "https://192.168.64.153:8080/video"
+url = "https://192.168.74.45:8080/video"
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
@@ -41,7 +41,8 @@ while True:
                 #     cv2.imshow("r", rank)
                 #     cv2.imshow("s", suit)
                 k = k + 1
-        if loendur % 7 == 0:
+
+        if loendur % 5 == 0:
             new_cards = [(i.best_rank_match, i.side) for i in cards]
         loendur += 1
         if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
@@ -54,6 +55,18 @@ while True:
                 loendur = 0
         if new_cards != []:
             new_game_counter = 0
+
+    if current_cards:
+        dealer_cards = []
+        player_cards = []
+        for i in current_cards:
+            if i[1] == "Dealer":
+                dealer_cards.append(i[0])
+            if i[1] == "Player":
+                player_cards.append(i[0])
+        if loendur % 5 == 0:
+            print(dealer_cards)
+            print(player_cards)
     if (len(cards) != 0):
         temp_cnts = []
         for i in range(len(cards)):
