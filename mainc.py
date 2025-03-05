@@ -14,11 +14,32 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 path = os.path.dirname(os.path.abspath(__file__))
 train_ranks = Cards.load_ranks( path + '/Card_Imgs/')
 train_suits = Cards.load_suits( path + '/Card_Imgs/')
+rank_map = {
+            'Two': 2,
+            'Three': 3,
+            'Four': 4,
+            'Five': 5,
+            'Six': 6,
+            'Seven': 7,
+            'Eight': 8,
+            'Nine': 9,
+            "Ten": 10,
+            "Jack": 10,
+            "Queen": 10,
+            "King": 10,
+            "Ace" : 11
+        }
 cards = []
 current_cards = []
 loendur = 0
 new_game_counter = 0
 time.sleep(1)
+dealer_cards = []
+player_cards = []
+dealer_aces = 0
+player_aces = 0
+dealer_value = 0
+player_value = 0
 while True:
     ret, frame = cap.read()  # Loeb kaadri
     if not ret:
@@ -56,17 +77,36 @@ while True:
         if new_cards != []:
             new_game_counter = 0
 
-    if current_cards:
+    if current_cards and loendur % 5 == 0:
         dealer_cards = []
         player_cards = []
+        dealer_aces = 0
+        player_aces = 0
+        dealer_value = 0
+        player_value = 0
         for i in current_cards:
             if i[1] == "Dealer":
                 dealer_cards.append(i[0])
             if i[1] == "Player":
                 player_cards.append(i[0])
-        if loendur % 5 == 0:
-            print(dealer_cards)
-            print(player_cards)
+        for card in dealer_cards:
+            if card == "Ace":
+                dealer_aces += 1
+            dealer_value += rank_map[card]
+        for card in player_cards:
+            if card == "Ace":
+                player_aces += 1
+            player_value += rank_map[card]
+        for _ in range(dealer_aces):
+            if dealer_value > 21 and dealer_aces > 0:
+                dealer_aces -= 1
+                dealer_value -= 10
+        for _ in range(player_aces):
+            if player_value > 21 and player_aces > 0:
+                player_aces -= 1
+                player_value -= 10
+        print("D",dealer_value)
+        print("P",player_value)
     if (len(cards) != 0):
         temp_cnts = []
         for i in range(len(cards)):
