@@ -7,7 +7,7 @@ url = "https://192.168.74.45:8080/video" #NB! Muutub!
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
-FRAME_RATE = 2
+FRAME_RATE = 1
 frame_rate_calc = 1
 f = open("decision.txt", "w")
 freq = cv2.getTickFrequency()
@@ -34,7 +34,6 @@ cards = []
 current_cards = []
 loendur = 0
 new_game_counter = 0
-time.sleep(1)
 dealer_cards = []
 player_cards = []
 dealer_aces = 0
@@ -46,6 +45,7 @@ old_player_value = 0
 n1 = 0
 n2 = 0
 new_game = True
+decidable = False
 def player_decision(player_value, dealer_value, player_aces):
     if player_aces > 0:
         if player_value <= 17:
@@ -101,20 +101,20 @@ while True:
 
         if loendur % 5 == 0:
             new_cards = [(i.best_rank_match, i.side) for i in cards]
-        loendur += 1
-        if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
-            current_cards = new_cards
-        if new_cards == []:
-            new_game_counter += 1
-            if new_game_counter == 3:
-                current_cards = []
+            if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
+                current_cards = new_cards
+                decidable = True
+            if new_cards == []:
+                new_game_counter += 1
+                if new_game_counter == 3:
+                    current_cards = []
+                    new_game_counter = 0
+                    new_game = True
+                    old_dealer_value = 0
+                    old_player_value = 0
+                    loendur = 0
+            if new_cards != []:
                 new_game_counter = 0
-                new_game = True
-                old_dealer_value = 0
-                old_player_value = 0
-                loendur = 0
-        if new_cards != []:
-            new_game_counter = 0
 
     if current_cards and loendur % 5 == 0:
         dealer_cards = []
@@ -123,6 +123,7 @@ while True:
         player_aces = 0
         dealer_value = 0
         player_value = 0
+        blackjack = False
         for i in current_cards:
             if i[1] == "Dealer":
                 dealer_cards.append(i[0])
@@ -148,18 +149,39 @@ while True:
         print("P",player_value)
         if dealer_value == old_dealer_value:
             n1 += 1
+        else:
+            n1 = 0
         if player_value == old_player_value:
             n2 += 1
+        else:
+            n2 = 0
         old_dealer_value = dealer_value
         old_player_value = player_value
         print(old_dealer_value,old_player_value)
-    if new_game and n1 > 2 and n2 > 2:
+    if len(player_cards) == 2 and player_value == 21:
+        blackjack = True
+        if dealer_value < 10 or (dealer_value == 21 and len(dealer_cards > 2)):
+            f.write("WIN 0 0")
+    if player_value > 21:
+        f.write("BUST 0 0")
+    elif dealer_value > 21:
+        f.write("WIN 0 0")
+    elif not new_game and dealer_value >= 17: #DEALER MUST STAND ON 17
+        if (player_value == dealer_value and not blackjack) or (blackjack and dealer_value == 21 and len(dealer_cards) == 2):
+            f.write("PUSH 0 0")
+        elif player_value > dealer_value:
+            f.write("WIN 0 0")
+        elif player_value < dealer_value:
+            f.write("LOSS 0 0")
+    elif new_game and n1 > 2 and n2 > 2 and not blackjack and decidable:
         decision = player_decision(player_value, dealer_value, player_aces)
         f.write(decision)
         if decision == "STAND":
             new_game = False
+        decidable = False
         n1 = 0
         n2 = 0
+    loendur += 1
     if (len(cards) != 0):
         temp_cnts = []
         for i in range(len(cards)):
