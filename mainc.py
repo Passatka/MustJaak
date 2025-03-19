@@ -44,11 +44,8 @@ player_value = 0
 old_dealer_value = 0
 old_player_value = 0
 counter = 0
-counter = 0
 n1 = 0
 n2 = 0
-new_games = 0
-new_games = 0
 new_game = True
 decidable = False
 def player_decision(player_value, dealer_value, player_aces):
@@ -102,14 +99,7 @@ while True:
                 if len(rank) > 5 and len(suit) > 5:
                     cv2.imshow("r", rank)
                     cv2.imshow("s", suit)
-                rank = cards[k].rank_img
-                suit = cards[k].suit_img
-                if len(rank) > 5 and len(suit) > 5:
-                    cv2.imshow("r", rank)
-                    cv2.imshow("s", suit)
                 k = k + 1
-
-        if loendur % 4 == 0:
         if loendur % 4 == 0:
             new_cards = [(i.best_rank_match, i.side) for i in cards]
             if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
@@ -119,17 +109,16 @@ while True:
                 new_game_counter += 1
                 if new_game_counter == 3:
                     current_cards = []
-                    new_game_counter = 0
                     new_game = True
                     old_dealer_value = 0
                     old_player_value = 0
+                    dealer_value = 0
+                    player_value = 0
                     loendur = 0
-                counter = 0
-                new_games += 1
+                    new_game_counter = 0
             if new_cards != []:
                 new_game_counter = 0
-
-    if current_cards and loendur % 4 == 0:
+            
     if current_cards and loendur % 4 == 0:
         dealer_cards = []
         player_cards = []
@@ -170,36 +159,51 @@ while True:
         old_dealer_value = dealer_value
         old_player_value = player_value
         print(old_dealer_value,old_player_value)
-    if len(player_cards) == 2 and player_value == 21:
-        blackjack = True
-        if dealer_value < 10 or (dealer_value == 21 and len(dealer_cards > 2)):
-            f.write("WIN 0 0")
-    if player_value > 21:
-        f.write("BUST 0 0")
-    elif dealer_value > 21:
-        f.write("WIN 0 0")
-    elif not new_game and dealer_value >= 17: #DEALER MUST STAND ON 17
-        if (player_value == dealer_value and not blackjack) or (blackjack and dealer_value == 21 and len(dealer_cards) == 2):
-            f.write("PUSH 0 0")
-        elif player_value > dealer_value:
-            f.write("WIN 0 0")
-        elif player_value < dealer_value:
-            f.write("LOSS 0 0")
-    elif new_game and n1 > 2 and n2 > 2 and not blackjack and decidable:
-        decision = player_decision(player_value, dealer_value, player_aces)
-        counter += 1
-        f = open("decision.txt", "w")
-        f.write(f"{decision} {counter} {new_games}")
-        f.close()
-        counter += 1
-        f = open("decision.txt", "w")
-        f.write(f"{decision} {counter} {new_games}")
-        f.close()
-        if decision == "STAND":
-            new_game = False
-        decidable = False
-        n1 = 0
-        n2 = 0
+    if n1 > 2 and n2 > 2:
+        if len(player_cards) == 2 and player_value == 21:
+            blackjack = True
+            if dealer_value < 10 or (dealer_value == 21 and len(dealer_cards > 2)):
+                counter += 1
+                f = open("decision.txt", "w")
+                f.write(f"WIN {counter}")
+                f.close()
+        if player_value > 21:
+            counter += 1
+            f = open("decision.txt", "w")
+            f.write(f"LOSS {counter}")
+            f.close()
+        elif dealer_value > 21:
+            counter += 1
+            f = open("decision.txt", "w")
+            f.write(f"WIN {counter}")
+            f.close()
+        elif not new_game and dealer_value >= 17: #DEALER MUST STAND ON 17
+            if (player_value == dealer_value and not blackjack) or (blackjack and dealer_value == 21 and len(dealer_cards) == 2):
+                counter += 1
+                f = open("decision.txt", "w")
+                f.write(f"PUSH {counter}")
+                f.close()
+            elif player_value > dealer_value:
+                counter += 1
+                f = open("decision.txt", "w")
+                f.write(f"WIN {counter}")
+                f.close()
+            elif player_value < dealer_value:
+                counter += 1
+                f = open("decision.txt", "w")
+                f.write(f"LOSS {counter}")
+                f.close()
+        elif new_game and not blackjack and decidable:
+            decision = player_decision(player_value, dealer_value, player_aces)
+            counter += 1
+            f = open("decision.txt", "w")
+            f.write(f"{decision} {counter}")
+            f.close()
+            if decision == "STAND":
+                new_game = False
+            decidable = False
+            n1 = 0
+            n2 = 0
     loendur += 1
     if (len(cards) != 0):
         temp_cnts = []
