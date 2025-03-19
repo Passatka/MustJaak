@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import Cards
-url = "https://192.168.74.45:8080/video" #NB! Muutub!
+url = "https://192.168.219.17:8080/video" #NB! Muutub!
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
@@ -42,8 +42,10 @@ dealer_value = 0
 player_value = 0
 old_dealer_value = 0
 old_player_value = 0
+counter = 0
 n1 = 0
 n2 = 0
+new_games = 0
 new_game = True
 decidable = False
 def player_decision(player_value, dealer_value, player_aces):
@@ -92,14 +94,14 @@ while True:
                 cards.append(Cards.preprocess_card(cnts_sort[i],frame))
                 cards[k].best_rank_match,cards[k].best_suit_match,cards[k].rank_diff,cards[k].suit_diff = Cards.match_card(cards[k],train_ranks,train_suits)
                 frame = Cards.draw_results(frame, cards[k])
-                # rank = cards[k].rank_img
-                # suit = cards[k].suit_img
-                # if len(rank) > 5 and len(suit) > 5:
-                #     cv2.imshow("r", rank)
-                #     cv2.imshow("s", suit)
+                rank = cards[k].rank_img
+                suit = cards[k].suit_img
+                if len(rank) > 5 and len(suit) > 5:
+                    cv2.imshow("r", rank)
+                    cv2.imshow("s", suit)
                 k = k + 1
 
-        if loendur % 5 == 0:
+        if loendur % 4 == 0:
             new_cards = [(i.best_rank_match, i.side) for i in cards]
             if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
                 current_cards = new_cards
@@ -113,10 +115,12 @@ while True:
                     old_dealer_value = 0
                     old_player_value = 0
                     loendur = 0
+                counter = 0
+                new_games += 1
             if new_cards != []:
                 new_game_counter = 0
 
-    if current_cards and loendur % 5 == 0:
+    if current_cards and loendur % 4 == 0:
         dealer_cards = []
         player_cards = []
         dealer_aces = 0
@@ -145,8 +149,6 @@ while True:
             if player_value > 21 and player_aces > 0:
                 player_aces -= 1
                 player_value -= 10
-        print("D",dealer_value)
-        print("P",player_value)
         if dealer_value == old_dealer_value:
             n1 += 1
         else:
@@ -175,7 +177,10 @@ while True:
             f.write("LOSS 0 0")
     elif new_game and n1 > 2 and n2 > 2 and not blackjack and decidable:
         decision = player_decision(player_value, dealer_value, player_aces)
-        f.write(decision)
+        counter += 1
+        f = open("decision.txt", "w")
+        f.write(f"{decision} {counter} {new_games}")
+        f.close()
         if decision == "STAND":
             new_game = False
         decidable = False
@@ -188,7 +193,7 @@ while True:
             temp_cnts.append(cards[i].contour)
         cv2.drawContours(frame,temp_cnts, -1, (255,0,0), 2)
     cv2.putText(frame,"FPS: "+str(int(frame_rate_calc)),(10,26),font,0.7,(255,0,255),2,cv2.LINE_AA)
-    cv2.imshow("Card Detector",frame)
+    cv2.imshow("Card Detector", frame)
 
     # print("New: ", new_cards)
     # print("Current: ",current_cards)
