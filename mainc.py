@@ -4,6 +4,7 @@ import time
 import os
 import Cards
 url = "https://192.168.219.17:8080/video" #NB! Muutub!
+url = "https://192.168.219.17:8080/video" #NB! Muutub!
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
@@ -43,8 +44,10 @@ player_value = 0
 old_dealer_value = 0
 old_player_value = 0
 counter = 0
+counter = 0
 n1 = 0
 n2 = 0
+new_games = 0
 new_games = 0
 new_game = True
 decidable = False
@@ -99,8 +102,14 @@ while True:
                 if len(rank) > 5 and len(suit) > 5:
                     cv2.imshow("r", rank)
                     cv2.imshow("s", suit)
+                rank = cards[k].rank_img
+                suit = cards[k].suit_img
+                if len(rank) > 5 and len(suit) > 5:
+                    cv2.imshow("r", rank)
+                    cv2.imshow("s", suit)
                 k = k + 1
 
+        if loendur % 4 == 0:
         if loendur % 4 == 0:
             new_cards = [(i.best_rank_match, i.side) for i in cards]
             if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
@@ -120,6 +129,7 @@ while True:
             if new_cards != []:
                 new_game_counter = 0
 
+    if current_cards and loendur % 4 == 0:
     if current_cards and loendur % 4 == 0:
         dealer_cards = []
         player_cards = []
@@ -181,6 +191,10 @@ while True:
         f = open("decision.txt", "w")
         f.write(f"{decision} {counter} {new_games}")
         f.close()
+        counter += 1
+        f = open("decision.txt", "w")
+        f.write(f"{decision} {counter} {new_games}")
+        f.close()
         if decision == "STAND":
             new_game = False
         decidable = False
@@ -193,6 +207,7 @@ while True:
             temp_cnts.append(cards[i].contour)
         cv2.drawContours(frame,temp_cnts, -1, (255,0,0), 2)
     cv2.putText(frame,"FPS: "+str(int(frame_rate_calc)),(10,26),font,0.7,(255,0,255),2,cv2.LINE_AA)
+    cv2.imshow("Card Detector", frame)
     cv2.imshow("Card Detector", frame)
 
     # print("New: ", new_cards)
