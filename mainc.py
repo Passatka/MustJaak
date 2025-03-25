@@ -4,7 +4,6 @@ import time
 import os
 import Cards
 url = "https://192.168.219.17:8080/video" #NB! Muutub!
-url = "https://192.168.219.17:8080/video" #NB! Muutub!
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
@@ -48,6 +47,7 @@ n1 = 0
 n2 = 0
 new_game = True
 decidable = False
+can_move = True
 def player_decision(player_value, dealer_value, player_aces):
     if player_aces > 0:
         if player_value <= 17:
@@ -116,6 +116,8 @@ while True:
                     player_value = 0
                     loendur = 0
                     new_game_counter = 0
+                    counter += 1
+                    can_move = True
             if new_cards != []:
                 new_game_counter = 0
             
@@ -159,40 +161,38 @@ while True:
         old_dealer_value = dealer_value
         old_player_value = player_value
         print(old_dealer_value,old_player_value)
-    if n1 > 2 and n2 > 2:
+    if n1 > 2 and n2 > 2 and can_move:
         if len(player_cards) == 2 and player_value == 21:
             blackjack = True
             if dealer_value < 10 or (dealer_value == 21 and len(dealer_cards > 2)):
-                counter += 1
                 f = open("decision.txt", "w")
-                f.write(f"WIN {counter}")
+                f.write(f"WIN {counter+1}")
                 f.close()
+                can_move = False
         if player_value > 21:
-            counter += 1
             f = open("decision.txt", "w")
-            f.write(f"LOSS {counter}")
+            f.write(f"LOSS {counter+1}")
             f.close()
+            can_move = False
         elif dealer_value > 21:
-            counter += 1
             f = open("decision.txt", "w")
-            f.write(f"WIN {counter}")
+            f.write(f"WIN {counter+1}")
             f.close()
+            can_move = False
         elif not new_game and dealer_value >= 17: #DEALER MUST STAND ON 17
             if (player_value == dealer_value and not blackjack) or (blackjack and dealer_value == 21 and len(dealer_cards) == 2):
-                counter += 1
                 f = open("decision.txt", "w")
-                f.write(f"PUSH {counter}")
+                f.write(f"PUSH {counter+1}")
                 f.close()
             elif player_value > dealer_value:
-                counter += 1
                 f = open("decision.txt", "w")
-                f.write(f"WIN {counter}")
+                f.write(f"WIN {counter+1}")
                 f.close()
-            elif player_value < dealer_value:
-                counter += 1
+            elif player_value < dealer_value or (dealer_value == 21 and len(dealer_cards) == 2 and not blackjack):
                 f = open("decision.txt", "w")
-                f.write(f"LOSS {counter}")
+                f.write(f"LOSS {counter+1}")
                 f.close()
+            can_move = False
         elif new_game and not blackjack and decidable:
             decision = player_decision(player_value, dealer_value, player_aces)
             counter += 1
