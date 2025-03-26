@@ -100,26 +100,27 @@ while True:
                 #     cv2.imshow("r", rank)
                 #     cv2.imshow("s", suit)
                 k = k + 1
-        if loendur % 4 == 0:
-            new_cards = [(i.best_rank_match, i.side) for i in cards]
-            if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
-                current_cards = new_cards
-                decidable = True
-            if new_cards == []:
-                new_game_counter += 1
-                if new_game_counter == 3:
-                    current_cards = []
-                    new_game = True
-                    old_dealer_value = 0
-                    old_player_value = 0
-                    dealer_value = 0
-                    player_value = 0
-                    loendur = 0
-                    new_game_counter = 0
-                    counter += 1
-                    can_move = True
-            if new_cards != []:
-                new_game_counter = 0
+    if loendur % 4 == 0:
+        new_cards = [(i.best_rank_match, i.side) for i in cards]
+        if len(new_cards) > len(current_cards) and ("Unknown", "Player") not in new_cards and ("Unknown", "Dealer") not in new_cards:
+            current_cards = new_cards
+            decidable = True
+        if new_cards == []:
+            new_game_counter += 1
+        if new_game_counter >= 3:
+            current_cards = []
+            new_game = True
+            old_dealer_value = -1
+            old_player_value = -1
+            dealer_value = 0
+            player_value = 0
+            loendur = 0
+            new_game_counter = 0
+            counter += 1
+            can_move = True
+            print("New game begins!")
+        if new_cards != []:
+            new_game_counter = 0
             
     if current_cards and loendur % 4 == 0:
         dealer_cards = []
@@ -160,50 +161,51 @@ while True:
             n2 = 0
         old_dealer_value = dealer_value
         old_player_value = player_value
-        print(old_dealer_value,old_player_value)
-    if n1 > 2 and n2 > 2 and can_move:
-        if len(player_cards) == 2 and player_value == 21:
-            blackjack = True
-            if dealer_value < 10 or (dealer_value == 21 and len(dealer_cards > 2)):
+        print(dealer_value,player_value)
+        if n1 >= 4 and n2 >= 4 and can_move:
+            if len(player_cards) == 2 and player_value == 21:
+                blackjack = True
+                new_game = False
+                if dealer_value < 10 or len(dealer_cards) > 2 or (dealer_value < 21 and len(dealer_cards) >= 2):
+                    f = open("decision.txt", "w")
+                    f.write(f"WIN {counter+1}")
+                    f.close()
+                    can_move = False
+            if player_value > 21:
+                f = open("decision.txt", "w")
+                f.write(f"LOSS {counter+1}")
+                f.close()
+                can_move = False
+            elif dealer_value > 21:
                 f = open("decision.txt", "w")
                 f.write(f"WIN {counter+1}")
                 f.close()
                 can_move = False
-        if player_value > 21:
-            f = open("decision.txt", "w")
-            f.write(f"LOSS {counter+1}")
-            f.close()
-            can_move = False
-        elif dealer_value > 21:
-            f = open("decision.txt", "w")
-            f.write(f"WIN {counter+1}")
-            f.close()
-            can_move = False
-        elif not new_game and dealer_value >= 17: #DEALER MUST STAND ON 17
-            if (player_value == dealer_value and not blackjack) or (blackjack and dealer_value == 21 and len(dealer_cards) == 2):
+            elif not new_game and dealer_value >= 17: #DEALER MUST STAND ON 17
+                if (player_value == dealer_value and not blackjack) or (blackjack and dealer_value == 21 and len(dealer_cards) == 2):
+                    f = open("decision.txt", "w")
+                    f.write(f"PUSH {counter+1}")
+                    f.close()
+                elif player_value > dealer_value:
+                    f = open("decision.txt", "w")
+                    f.write(f"WIN {counter+1}")
+                    f.close()
+                elif player_value < dealer_value or (dealer_value == 21 and len(dealer_cards) == 2 and not blackjack):
+                    f = open("decision.txt", "w")
+                    f.write(f"LOSS {counter+1}")
+                    f.close()
+                can_move = False
+            elif new_game and not blackjack and decidable:
+                decision = player_decision(player_value, dealer_value, player_aces)
+                counter += 1
                 f = open("decision.txt", "w")
-                f.write(f"PUSH {counter+1}")
+                f.write(f"{decision} {counter}")
                 f.close()
-            elif player_value > dealer_value:
-                f = open("decision.txt", "w")
-                f.write(f"WIN {counter+1}")
-                f.close()
-            elif player_value < dealer_value or (dealer_value == 21 and len(dealer_cards) == 2 and not blackjack):
-                f = open("decision.txt", "w")
-                f.write(f"LOSS {counter+1}")
-                f.close()
-            can_move = False
-        elif new_game and not blackjack and decidable:
-            decision = player_decision(player_value, dealer_value, player_aces)
-            counter += 1
-            f = open("decision.txt", "w")
-            f.write(f"{decision} {counter}")
-            f.close()
-            if decision == "STAND":
-                new_game = False
-            decidable = False
-            n1 = 0
-            n2 = 0
+                if decision == "STAND":
+                    new_game = False
+                decidable = False
+                n1 = 0
+                n2 = 0
     loendur += 1
     if (len(cards) != 0):
         temp_cnts = []
