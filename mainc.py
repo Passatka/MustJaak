@@ -94,11 +94,11 @@ while True:
                 cards.append(Cards.preprocess_card(cnts_sort[i],frame))
                 cards[k].best_rank_match,cards[k].best_suit_match,cards[k].rank_diff,cards[k].suit_diff = Cards.match_card(cards[k],train_ranks,train_suits)
                 frame = Cards.draw_results(frame, cards[k])
-                rank = cards[k].rank_img
-                suit = cards[k].suit_img
-                if len(rank) > 5 and len(suit) > 5:
-                    cv2.imshow("r", rank)
-                    cv2.imshow("s", suit)
+                # rank = cards[k].rank_img
+                # suit = cards[k].suit_img
+                # if len(rank) > 5 and len(suit) > 5:
+                #     cv2.imshow("r", rank)
+                #     cv2.imshow("s", suit)
                 k = k + 1
         if loendur % 4 == 0:
             new_cards = [(i.best_rank_match, i.side) for i in cards]
@@ -188,7 +188,10 @@ while True:
                 f = open("decision.txt", "w")
                 f.write(f"WIN {counter+1}")
                 f.close()
+<<<<<<< Updated upstream
             elif player_value < dealer_value or (dealer_value == 21 and len(dealer_cards) == 2 and not blackjack):
+=======
+>>>>>>> Stashed changes
                 f = open("decision.txt", "w")
                 f.write(f"LOSS {counter+1}")
                 f.close()
@@ -196,6 +199,11 @@ while True:
         elif new_game and not blackjack and decidable:
             decision = player_decision(player_value, dealer_value, player_aces)
             counter += 1
+            f = open("decision.txt", "r")
+            rida = f.read()
+            if rida:
+                if rida.split()[0] == "WIN" or rida.split()[0] == "LOSS" or rida.split()[0] == "PUSH":
+                    counter += 1
             f = open("decision.txt", "w")
             f.write(f"{decision} {counter}")
             f.close()
@@ -211,7 +219,6 @@ while True:
             temp_cnts.append(cards[i].contour)
         cv2.drawContours(frame,temp_cnts, -1, (255,0,0), 2)
     cv2.putText(frame,"FPS: "+str(int(frame_rate_calc)),(10,26),font,0.7,(255,0,255),2,cv2.LINE_AA)
-    cv2.imshow("Card Detector", frame)
     cv2.imshow("Card Detector", frame)
 
     # print("New: ", new_cards)
