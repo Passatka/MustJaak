@@ -1,5 +1,1 @@
-<<<<<<< Updated upstream
 HIT 1
-=======
-LOSS 3
->>>>>>> Stashed changes

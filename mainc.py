@@ -3,7 +3,7 @@ import numpy as np
 import time
 import os
 import Cards
-url = "https://192.168.219.17:8080/video" #NB! Muutub!
+url = "https://192.168.218.90:8080/video" #NB! Muutub!
 cap = cv2.VideoCapture(url)
 IM_WIDTH = 1920
 IM_HEIGHT = 1080 
@@ -188,10 +188,7 @@ while True:
                 f = open("decision.txt", "w")
                 f.write(f"WIN {counter+1}")
                 f.close()
-<<<<<<< Updated upstream
             elif player_value < dealer_value or (dealer_value == 21 and len(dealer_cards) == 2 and not blackjack):
-=======
->>>>>>> Stashed changes
                 f = open("decision.txt", "w")
                 f.write(f"LOSS {counter+1}")
                 f.close()
@@ -199,11 +196,6 @@ while True:
         elif new_game and not blackjack and decidable:
             decision = player_decision(player_value, dealer_value, player_aces)
             counter += 1
-            f = open("decision.txt", "r")
-            rida = f.read()
-            if rida:
-                if rida.split()[0] == "WIN" or rida.split()[0] == "LOSS" or rida.split()[0] == "PUSH":
-                    counter += 1
             f = open("decision.txt", "w")
             f.write(f"{decision} {counter}")
             f.close()
